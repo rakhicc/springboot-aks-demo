@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: springboot-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: springboot-app
+  template:
+    metadata:
+      labels:
+        app: springboot-app
+    spec:
+      containers:
+        - name: springboot-container
+          image: Rakhiacr12345.azurecr.io/springboot-aks-demo:v1
+          ports:
+            - containerPort: 8080
+      imagePullSecrets:
+        - name: acr-secret
