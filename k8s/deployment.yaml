@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: springboot-container
-          image: Rakhiacr12345.azurecr.io/springboot-aks-demo:v1
+          image: rakhiacr12345.azurecr.io/springboot-aks-demo:v1
           ports:
             - containerPort: 8080
       imagePullSecrets:
