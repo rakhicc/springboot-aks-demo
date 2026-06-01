@@ -1,4 +1,5 @@
-Run following commands in intellij idea terminal
+# a simple springboot app to say hello which is created mainly to learn how to deploy a java springboot application using azure resources ACR and AKS
+# Run following commands in intellij idea terminal
 az login
 
 
