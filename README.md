@@ -1,4 +1,7 @@
-# a simple springboot app to say hello which is created mainly to learn how to deploy a java springboot application using azure resources ACR and AKS
+# a springboot app which will save user information to azure sql server, this project is created mainly to learn how to deploy a java springboot application using azure resources ACR and AKS
+# docker image is built using azure container registry
+# dev and test profiles are created and seperate DB is created using azure sql server for dev and test environment
+# Aks will control which profile to run
 # Run following commands in intellij idea terminal
 az login
 
