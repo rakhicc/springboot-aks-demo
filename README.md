@@ -110,6 +110,7 @@ chandran [ ~/springboot-aks-demo/k8s ]$ kubectl apply -f deployment-test.yaml
 deployment.apps/springboot-test created
 chandran [ ~/springboot-aks-demo/k8s ]$ kubectl apply -f service-dev.yaml
 service/springboot-dev-service created
+
 chandran [ ~/springboot-aks-demo/k8s ]$ kubectl apply -f service-test.yaml
 service/springboot-test-service created
 chandran [ ~/springboot-aks-demo/k8s ]$ kubectl get svc
@@ -120,7 +121,11 @@ springboot-test-service   LoadBalancer   10.0.172.78    20.67.162.252   80:32282
 
 restart the pod using below command in case you change the secret:
 kubectl rollout restart deployment springboot-test
+successfully tested in test env:
 <img width="592" height="245" alt="springboot_test" src="https://github.com/user-attachments/assets/20b30970-0695-46b2-af71-37400241002a" />
+
+successfully tested in dev env:
+<img width="482" height="247" alt="springboot-dev" src="https://github.com/user-attachments/assets/3b53e22c-ab9d-4e7b-abf1-def86d21474b" />
 
 
 
