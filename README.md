@@ -36,3 +36,92 @@ NAME                 TYPE           CLUSTER-IP    EXTERNAL-IP       PORT(S)     
 springboot-service   LoadBalancer   10.0.171.22   135.236.129.136   80:32603/TCP   2m59s
 
 http://135.236.129.136/rakhi will give output as Hello rakhi
+
+# Working with two profiles dev and test with azure sql server and ACR and AKS
+Big Picture (What We’ll Do)
+Spring Boot Profiles → dev / test
+        ↓
+Store DB credentials → Kubernetes Secrets
+        ↓
+Build image → ACR (cloud)
+        ↓
+Deploy → AKS (dev + test separately)
+
+No changes are needed for dockerfile as one image is being build for all environment and profile based switching is managed by Kubernetes.
+created application-dev yaml and test yaml separately as well as service and deployment yaml files separately for each environment.
+create ACR using command in azure cli:
+az acr create \
+  --resource-group RG_RakhiChirayilLab \
+  --name rakhiacr12345 \
+  --sku Basic
+
+
+create AKS cluster:
+az aks create \
+  --resource-group RG_RakhiChirayilLab \
+  --name rakhi-aks-cluster \
+  --node-count 1 \
+  --enable-addons monitoring \
+  --generate-ssh-keys
+connect to the cluster :
+az aks get-credentials \
+  --resource-group RG_RakhiChirayilLab \
+  --name rakhi-aks-cluster \
+  --overwrite-existing
+since aks cannot connect to acr due to lacking od admin rights, manually connect aks to acr using below commands:
+az acr update --name rakhiacr12345 --admin-enabled
+get password using below command 
+az acr credential show --name rakhiacr12345
+Step 2: Create Kubernetes Secret
+kubectl create secret docker-registry acr-secret \
+--docker-server=rakhiacr12345.azurecr.io \
+--docker-username=rakhiacr12345 \
+--docker-password= 6M0nUyYDavyAClvcPGa8msWn2VxcP04n6XpeNc0GLka5HxoV4HLwJQQJ99CFACi5YpzEqg7NAAACAZCRNeDs
+
+Step 3: Use Secret in Deployment files
+
+now create secrets for storing db username and password so that no values are added in code directly.
+kubectl create secret generic db-secret-dev \
+  --from-literal=DB_USERNAME=sqladmin@springboot-sql-server\
+  --from-literal=DB_PASSWORD=YourStrongPassword123!
+Create TEST secret
+kubectl create secret generic db-secret-test \
+--from-literal=DB_USERNAME=sqladmin@springboot-sql-server\
+--from-literal=DB_PASSWORD=YourStrongPassword123!
+
+Now secrets are stored securely in AKS
+now in intellij idea terminal do mvn clean package
+then build image using command:
+az acr build  --registry rakhiacr12345  --image springboot-aks-demo:v1 .
+
+then add the db secrets in deployment files of dev and test
+commit to github and then in azure cli connect to aks cluster and then clone project then run below commands:
+chandran [ ~ ]$ cd springboot-aks-demo
+chandran [ ~/springboot-aks-demo ]$ ls
+Dockerfile  k8s  pom.xml  README.md  src
+chandran [ ~/springboot-aks-demo ]$ kubectl apply -f deployment-dev.yaml
+error: the path "deployment-dev.yaml" does not exist
+chandran [ ~/springboot-aks-demo ]$ cd k8s
+chandran [ ~/springboot-aks-demo/k8s ]$ kubectl apply -f deployment-dev.yaml
+deployment.apps/springboot-dev created
+chandran [ ~/springboot-aks-demo/k8s ]$ kubectl apply -f deployment-test.yaml
+deployment.apps/springboot-test created
+chandran [ ~/springboot-aks-demo/k8s ]$ kubectl apply -f deployment-test.yaml
+deployment.apps/springboot-test created
+chandran [ ~/springboot-aks-demo/k8s ]$ kubectl apply -f service-dev.yaml
+service/springboot-dev-service created
+chandran [ ~/springboot-aks-demo/k8s ]$ kubectl apply -f service-test.yaml
+service/springboot-test-service created
+chandran [ ~/springboot-aks-demo/k8s ]$ kubectl get svc
+NAME                      TYPE           CLUSTER-IP     EXTERNAL-IP     PORT(S)        AGE
+kubernetes                ClusterIP      10.0.0.1       <none>          443/TCP        50m
+springboot-dev-service    LoadBalancer   10.0.130.129   4.210.54.145    80:32647/TCP   32s
+springboot-test-service   LoadBalancer   10.0.172.78    20.67.162.252   80:32282/TCP   14s
+
+restart the pod using below command in case you change the secret:
+kubectl rollout restart deployment springboot-test
+<img width="592" height="245" alt="springboot_test" src="https://github.com/user-attachments/assets/20b30970-0695-46b2-af71-37400241002a" />
+
+
+
+
