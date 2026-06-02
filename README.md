@@ -2,7 +2,8 @@
 # docker image is built using azure container registry
 # dev and test profiles are created and seperate DB is created using azure sql server for dev and test environment
 # Aks will control which profile to run
-# Run following commands in intellij idea terminal
+Created the project in intellij idea snd executed commands as explained below:
+Run following commands in intellij idea terminal
 az login
 
 
