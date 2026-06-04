@@ -41,6 +41,8 @@ springboot-service   LoadBalancer   10.0.171.22   135.236.129.136   80:32603/TCP
 
 http://135.236.129.136/rakhi will give output as Hello rakhi
 
+
+
 # Working with two profiles dev and test with azure sql server and ACR and AKS
 Big Picture (What We’ll Do)
 Spring Boot Profiles → dev / test
